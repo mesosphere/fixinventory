@@ -1,5 +1,4 @@
 import fixlib.logger
-import os
 
 from ntnx_clustermgmt_py_client import Configuration as ClusterConfiguration
 from ntnx_clustermgmt_py_client import ApiClient as ClusterClient
@@ -24,6 +23,8 @@ log = fixlib.logger.getLogger("fix." + __name__)
 class NutanixCollectorPlugin(BaseCollectorPlugin):
     """Nutanix Collector Plugin"""
 
+    cloud = "nutanix"
+
     def collect(self) -> None:
         """This method is being called by fix whenever the collector runs
 
@@ -35,9 +36,7 @@ class NutanixCollectorPlugin(BaseCollectorPlugin):
         """
         log.debug("plugin: collecting nutanix resources")
 
-        pcConfigs = cast(
-            List[PrismCentalCredentials], Config.PrismCentralColletorConfig.credentials
-        )
+        pcConfigs = cast(List[PrismCentalCredentials], Config.nutanix.credentials)
         for pc in pcConfigs:
             pcAccount = PrismCentralAccount(
                 id=pc.name.replace(" ", "_"),
@@ -45,11 +44,14 @@ class NutanixCollectorPlugin(BaseCollectorPlugin):
                 endpoint=pc.endpoint,
                 username=pc.username,
                 password=pc.password,
+                port=pc.port,
+                insecure=pc.insecure,
             )
             pc_graph = self.collect_pc(pcAccount)
-            self.graph.add_resource(self.graph.root, pc_graph)
+            if pc_graph:
+                self.send_account_graph(pc_graph)
 
-    def collect_pc(self, prismCentral: PrismCentralAccount) -> Optional[Graph]:
+    def collect_pc(self, prismCentral: PrismCentralAccount) -> Graph:
         log.info(f"Collecting data from Nutanix Prism Central {prismCentral.name}")
         vmmClient = vmm_client(prismCentral)
         clusterClient = cluster_client(prismCentral)

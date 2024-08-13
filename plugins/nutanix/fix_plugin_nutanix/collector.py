@@ -1,14 +1,11 @@
 import logging
-import json
 
 import ntnx_clustermgmt_py_client
-from ntnx_clustermgmt_py_client import Configuration as ClusterConfiguration
 from ntnx_clustermgmt_py_client import ApiClient as ClusterClient
 
-from typing import Tuple, Type, List, Dict, Callable, Any, Optional, cast, DefaultDict
+from typing import Tuple, List, Dict, Callable
 
 import ntnx_vmm_py_client
-from ntnx_vmm_py_client import Configuration as VMMConfiguration
 from ntnx_vmm_py_client import ApiClient as VMMClient
 from fix_plugin_nutanix.resources import (
     PrismCentralAccount,
@@ -18,7 +15,7 @@ from fix_plugin_nutanix.resources import (
 from fixlib.graph import Graph
 
 log = logging.getLogger("fix." + __name__)
-
+ 
 
 class PrismCentralCollector:
     """
@@ -52,18 +49,16 @@ class PrismCentralCollector:
         self.collecter_set = set(self.allCollectors.keys())
         self.graph = Graph(root=self.prismCentral)
 
-    def collect(self):
+    def collect(self) -> Graph:
         """
         Runs resource collectors across all PE
         Resource collectors add their resources to the local `self.graph` graph
         """
-        log.info("Collecting data from Nutanix Prism Central")
+        log.info(f"Collecting data from Nutanix Prism Central: {self.prismCentral.name}")
         collectors = set(self.collecter_set)
         for collectorName, collector in self.mandatoryCollectors:
             if collectorName in collectors:
-                log.info(
-                    f"Running collector: {collectorName} in {self.prismCentral.name}"
-                )
+                log.info(f"Running collector: {collectorName} in {self.prismCentral.name}")
                 collector()
 
         prismElements = [pe for pe in self.graph.nodes if isinstance(pe, PrismElement)]
@@ -72,20 +67,15 @@ class PrismCentralCollector:
                 if collectorName in collectors:
                     log.info(f"Running collector: {collectorName} in {pe.name}")
                     collector(pe)
-
         return self.graph
 
     def collect_prism_element(self) -> None:
-        """
-        Collects data from all Prism Elements
-        """
         log.info("Collecting data from all Prism Elements")
         clusterApi = ntnx_clustermgmt_py_client.api.ClusterApi(self.clusterClient)
         clusters = clusterApi.get_clusters()
-        log.info(f"Found clusters: {clusters.metadata.total_available_results}")
+        log.info(f"Found PEs: {clusters.metadata.total_available_results}")
         for cluster in clusters.data:
-            # log.info(f"Cluster: {cluster}")
-            # log.info(f"uuid: {cluster['extId']}" f", name: {cluster['name']}")
+            log.debug(f"Processing PE. uuid: {cluster['extId']}" f", name: {cluster['name']}")
             pe = PrismElement(
                 id=cluster["extId"],
                 name=cluster["name"],
@@ -100,10 +90,7 @@ class PrismCentralCollector:
         log.info("Collecting data from all images")
 
     def collect_virtual_machines(self, pe: PrismElement) -> None:
-        """
-        Collects data from all virtual machines
-        """
-        log.info("Collecting data from all virtual machines")
+        log.info(f"Collecting data from all virtual machines in {pe.name}")
         # Get all virtual machines in the PE
         vmm_instance = ntnx_vmm_py_client.api.VmApi(self.vmmClient)
         filter = f"contains(cluster/extId, '{pe.id}')"
@@ -114,13 +101,12 @@ class PrismCentralCollector:
         if response.metadata.total_available_results == 0:
             return
         for vm in response.data:
-            # log.info(
-            #     f"VM: {vm.name}"
-            #     f", uuid: {vm.ext_id}"
-            #     f", power_state: {vm.power_state}"
-            #     f", create_time: {vm.create_time}"
-            # )
-            # log.info(f"VM: {vm}")
+            log.debug(
+                f"VM: {vm.name}"
+                f", uuid: {vm.ext_id}"
+                f", power_state: {vm.power_state}"
+                f", create_time: {vm.create_time}"
+            )
             vm = ViraualMachine(
                 id=vm.ext_id,
                 name=vm.name,

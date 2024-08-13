@@ -11,7 +11,7 @@ log = logging.getLogger("fix." + __name__)
 class PrismCentralAccount(BaseAccount):
     """PrismCentral Account"""
 
-    kind: ClassVar[str] = "prismcenteral_account"
+    kind: ClassVar[str] = "prismcentral_account"
     kind_display: ClassVar[str] = "Prism Central"
     kind_description: ClassVar[str] = (
         "Prism Central is a multi-cluster management solution that enables you to manage multiple Nutanix clusters "
@@ -27,7 +27,7 @@ class PrismCentralAccount(BaseAccount):
     endpoint: str
     username: str
     password: str
-    port: Optional[str] = "9440"
+    port: Optional[int] = 9440
     insecure: Optional[bool] = False
 
 

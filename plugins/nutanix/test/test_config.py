@@ -7,4 +7,4 @@ def test_config():
     config = Config("dummy", "dummy")
     NutanixCollectorPlugin.add_config(config)
     Config.init_default_config()
-    assert Config.prism_central.credentials == []
+    assert Config.nutanix.credentials == []

@@ -27,7 +27,7 @@ class PrismCentalCredentials:
 
 @define
 class PrismCentralColletorConfig:
-    kind: ClassVar[str] = "prism_central"
+    kind: ClassVar[str] = "nutanix"
     credentials: List[PrismCentalCredentials] = field(
         factory=list,
         metadata={

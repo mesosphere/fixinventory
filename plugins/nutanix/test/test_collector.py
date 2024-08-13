@@ -18,20 +18,20 @@ def prepare_graph() -> Graph:
     sherlockDevAccount = PrismCentralAccount(
         id="sherlock_dev",
         name="Sherlock Dev",
-        endpoint="prismcentral.dev.ntnxsherlock.com",
+        endpoint=os.getenv("NUTANIX_ENDPOINT"),
         username=os.getenv("NUTANIX_USER"),
         password=os.getenv("NUTANIX_PASSWORD"),
-        tags={"url": "https://prismcentral.dev.ntnxsherlock.com:9440/"},
+        tags={"url": os.getenv("NUTANIX_ENDPOINT")},
     )
     vmmClient = fix_plugin_nutanix.vmm_client(sherlockDevAccount)
     clusterClient = fix_plugin_nutanix.cluster_client(sherlockDevAccount)
     plugin_instance = PrismCentralCollector(
         sherlockDevAccount, vmmClient, clusterClient
     )
-    plugin_instance.collect()
+    pcGraph = plugin_instance.collect()
     cloud = Cloud(id="nutanix_test")
     cloud_graph = Graph(root=cloud)
-    cloud_graph.merge(plugin_instance.graph)
+    cloud_graph.merge(pcGraph)
     # create root and add cloud graph.
     graph = Graph(root=GraphRoot(id="root", tags={}))
     graph.merge(cloud_graph)

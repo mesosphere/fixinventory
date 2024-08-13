@@ -26,9 +26,9 @@ setup: clean
 requirements:
 	python3 tools/requirements.py
 
-DOCKER_IMAGE := ghcr.io/someengineering
+DOCKER_IMAGE := somecr.io/someengineering
 docker-build:
-	docker build -t $(DOCKER_IMAGE)/fixinventorybase:$(IMAGE_TAG) . -f Dockerfile.fixinventorybase
+	docker build -t ghcr.io/someengineering/fixinventorybase:$(IMAGE_TAG) . -f Dockerfile.fixinventorybase
 	docker build -t $(DOCKER_IMAGE)/fixcore:$(IMAGE_TAG) . -f Dockerfile.fixcore
 	docker build -t $(DOCKER_IMAGE)/fixworker:$(IMAGE_TAG) . -f Dockerfile.fixworker
 	docker build -t $(DOCKER_IMAGE)/fixmetrics:$(IMAGE_TAG) . -f Dockerfile.fixmetrics
