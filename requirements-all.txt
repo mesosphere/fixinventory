@@ -27,7 +27,7 @@ build==1.2.1
 cachetools==5.3.3
 cattrs==23.2.3
 cerberus==1.3.5
-certifi==2024.7.4
+certifi==2020.4.5.1
 cffi==1.16.0
 chardet==5.2.0
 charset-normalizer==3.3.2
@@ -190,3 +190,6 @@ wrapt==1.16.0
 yarl==1.9.4
 zc-lockfile==3.0.post1
 zipp==3.19.2
+ntnx_vmm_py_client==4.0.3a1
+ntnx_prism_py_client==4.0.3a2
+ntnx_clustermgmt_py_client==4.0.2a2
